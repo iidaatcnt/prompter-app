@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>リール用プロンプター</title>
+  <meta name="description" content="インスタグラムリール投稿時にスムーズにセリフを読むためのプロンプターアプリ。文字がカラオケのようにハイライトされます。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <h1 class="title">リール用プロンプター</h1>
+    <section class="control-panel">
+      <textarea id="scriptInput" placeholder="ここにセリフを貼り付けてください..." rows="4"></textarea>
+      <div class="settings">
+        <label for="speedRange">読み上げ速度（文字/分）: <span id="speedValue">225</span></label>
+        <input type="range" id="speedRange" min="200" max="250" value="225" />
+      </div>
+      <button id="startBtn" class="btn primary">開始</button>
+      <button id="pauseBtn" class="btn secondary" disabled>一時停止</button>
+    </section>
+    <section class="display-area" id="displayArea"></section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
