@@ -6,7 +6,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   font-family: 'Inter', sans-serif;
   background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -27,13 +28,14 @@ html, body {
   font-size: 2.2rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .control-panel {
   width: 100%;
   max-width: 800px;
-  background: rgba(255,255,255,0.08); /* fallback */
+  background: rgba(255, 255, 255, 0.08);
+  /* fallback */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 12px;
@@ -41,7 +43,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 textarea.scriptInput {
@@ -52,7 +54,7 @@ textarea.scriptInput {
   border-radius: 8px;
   padding: 0.8rem;
   font-size: 1rem;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
 
@@ -61,7 +63,7 @@ textarea.scriptInput::placeholder {
 }
 
 textarea.scriptInput:focus {
-    outline: 2px solid #4e54c8;
+  outline: 2px solid #4e54c8;
 }
 
 .settings {
@@ -75,10 +77,11 @@ input[type="range"] {
   -webkit-appearance: none;
   width: 150px;
   height: 4px;
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
   outline: none;
 }
+
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 14px;
@@ -86,7 +89,7 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 50%;
   background: #ff6b6b;
   cursor: pointer;
-  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
 .btn {
@@ -103,6 +106,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: #4e54c8;
   color: #fff;
 }
+
 .btn-primary:hover {
   background: #6268d6;
 }
@@ -111,6 +115,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: #555;
   color: #ddd;
 }
+
 .btn-secondary:hover {
   background: #666;
 }
@@ -128,22 +133,28 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: 1.5rem;
   width: 100%;
   max-width: 800px;
-  height: 350px; /* 固定の高さ */
-  background: rgba(0,0,0,0.6);
+  flex: 1;
+  /* 残りの高さをすべて埋める */
+  min-height: 0;
+  /* flexアイテムが縮むことを許可 */
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  padding: 1rem;
-  font-size: 2.5rem;
-  line-height: 1.6;
+  padding: 2rem;
+  font-size: 1.8rem;
+  /* 大きすぎたので少し縮小して広範囲を見せる */
+  line-height: 1.8;
   color: #fff;
-  overflow-y: hidden; /* スクロールバーを見えなくする */
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+  overflow-y: hidden;
+  /* スクロールバーを見えなくする */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
   position: relative;
 }
 
 .text-container {
-  padding-top: 150px; /* 最初の中央合わせのための余白 */
-  padding-bottom: 200px; 
+  padding-top: 30vh;
+  /* 最初と最後のスクロール用の余白 */
+  padding-bottom: 40vh;
 }
 
 .word {
@@ -151,7 +162,8 @@ input[type="range"]::-webkit-slider-thumb {
   margin-right: 2px;
   opacity: 0.4;
   transition: opacity 0.2s, color 0.2s;
-  white-space: pre-wrap; /* 改行やスペースを維持 */
+  white-space: pre-wrap;
+  /* 改行やスペースを維持 */
 }
 
 .word.active {
