@@ -1,5 +1,4 @@
-/* style.css - Modern glassmorphism design for the prompter app */
-/* Reset */
+/* style.css - Modern Prompter App Design */
 * {
   margin: 0;
   padding: 0;
@@ -10,8 +9,8 @@ html,
 body {
   height: 100%;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-  color: #f0f0f0;
+  background: linear-gradient(135deg, #fffcf5 0%, #fff0c7 50%, #ffffff 100%);
+  color: #333;
   overflow: hidden;
 }
 
@@ -28,96 +27,71 @@ body {
   font-size: 2.2rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  color: #e1306c; /* Instagram-like pink/red */
 }
 
 .control-panel {
   width: 100%;
   max-width: 800px;
-  background: rgba(255, 255, 255, 0.08);
-  /* fallback */
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(225, 48, 108, 0.1);
 }
 
 textarea.scriptInput {
   width: 100%;
-  min-height: 80px;
+  min-height: 300px;
   resize: vertical;
-  border: none;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 0.8rem;
-  font-size: 1rem;
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  padding: 1rem;
+  font-size: 1.1rem;
+  background: #ffffff;
+  color: #333;
+  line-height: 1.6;
 }
 
 textarea.scriptInput::placeholder {
-  color: #ccc;
+  color: #aaa;
 }
 
 textarea.scriptInput:focus {
-  outline: 2px solid #4e54c8;
-}
-
-.settings {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #e0e0e0;
-}
-
-input[type="range"] {
-  -webkit-appearance: none;
-  width: 150px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
-  outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #ff6b6b;
-  cursor: pointer;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  outline: 2px solid #f58529;
 }
 
 .btn {
-  padding: 0.6rem 1.2rem;
+  padding: 0.8rem 1.2rem;
   border: none;
   border-radius: 6px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s ease, background 0.2s ease;
+  transition: transform 0.1s ease, filter 0.2s ease;
 }
 
 .btn-primary {
-  background: #4e54c8;
+  background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: #6268d6;
+  filter: brightness(1.1);
 }
 
 .btn-secondary {
-  background: #555;
-  color: #ddd;
+  background: #e0e0e0;
+  color: #333;
 }
 
 .btn-secondary:hover {
-  background: #666;
+  background: #d0d0d0;
 }
 
 .btn:active {
@@ -129,31 +103,24 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: not-allowed;
 }
 
+/* プロンプター実行時の全画面スタイル */
 .display-area {
-  margin-top: 1.5rem;
-  width: 100%;
-  max-width: 800px;
-  flex: 1;
-  /* 残りの高さをすべて埋める */
-  min-height: 0;
-  /* flexアイテムが縮むことを許可 */
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 2rem;
-  font-size: 1.8rem;
-  /* 大きすぎたので少し縮小して広範囲を見せる */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 1000;
+  padding: 5vh 5vw;
+  font-size: 2.2rem;
   line-height: 1.8;
   color: #fff;
   overflow-y: hidden;
-  /* スクロールバーを見えなくする */
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
-  position: relative;
 }
 
 .text-container {
   padding-top: 30vh;
-  /* 最初と最後のスクロール用の余白 */
   padding-bottom: 40vh;
 }
 
@@ -163,7 +130,6 @@ input[type="range"]::-webkit-slider-thumb {
   opacity: 0.4;
   transition: opacity 0.2s, color 0.2s;
   white-space: pre-wrap;
-  /* 改行やスペースを維持 */
 }
 
 .word.active {
@@ -177,27 +143,12 @@ input[type="range"]::-webkit-slider-thumb {
   opacity: 0.15;
 }
 
-.display-area.fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  min-height: 100vh;
-  max-width: none;
-  border-radius: 0;
-  margin: 0;
-  z-index: 1000;
-  padding: 5vh 5vw;
-  cursor: pointer;
-}
-
 .fullscreen-hint {
   position: absolute;
   top: 15px;
   right: 15px;
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
   background: rgba(0, 0, 0, 0.6);
   padding: 8px 16px;
   border-radius: 8px;
@@ -208,11 +159,8 @@ input[type="range"]::-webkit-slider-thumb {
 /* ヘルプモーダル */
 .help-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.8);
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -221,36 +169,32 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .help-content {
-  background: #1a1a2e;
+  background: #ffffff;
   padding: 2.5rem;
   border-radius: 16px;
   max-width: 600px;
   width: 100%;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
   line-height: 1.8;
-  color: #fff;
+  color: #333;
 }
-
 .help-content h2 {
   margin-bottom: 1.5rem;
-  color: #ffeb3b;
+  color: #e1306c;
   text-align: center;
 }
-
 .help-content ul {
   margin-left: 0;
   margin-bottom: 2rem;
   list-style: none;
 }
-
 .help-content li {
   margin-bottom: 1rem;
   font-size: 1.05rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0,0,0,0.03);
   padding: 12px;
   border-radius: 8px;
 }
-
 .help-content strong {
-  color: #ff914d;
+  color: #f58529;
 }

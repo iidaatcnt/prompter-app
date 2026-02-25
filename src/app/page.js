@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
-  const [scriptText, setScriptText] = useState('こんにちは。\n今日はInstagramのリール撮影で使える、\n新しいプロンプターアプリのテストを行っています。\n\n音声認識モードを搭載し、話すスピードに合わせて\nアプリが自動的に読む場所を追いかけてくれます。\n\n（ここでアドリブで笑顔）\n実行中はフルスクリーンになり、目線を上げたままで自然に話せます。\n【スペースキー】を押すと一時停止・終了します。');
+  const [scriptText, setScriptText] = useState('皆様こんにちは！\n今日はお知らせがありまして、動画を回しています。\n実は、私がずっと開発を続けてきた新しいアプリが、ついに完成しました。\nこのアプリを使えば、毎日の面倒な作業が、驚くほど簡単になります。\n詳しくはキャプションに書いているので、ぜひチェックしてみてくださいね。\n画面のダブルタップもよろしくお願いします。');
   const [isRunning, setIsRunning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
@@ -234,34 +234,34 @@ export default function Home() {
         </section>
       )}
 
-      {/* 実行中は display-area を全画面化するクラスを付与 */}
-      <section
-        className={`display-area ${isRunning ? 'fullscreen' : ''}`}
-        ref={displayAreaRef}
-      /* 画面タップでの終了は廃止し、文字タップでのジャンプのみに特化 */
-      >
-        {isRunning && (
+      {/* 実行中のみプロンプター画面を表示 */}
+      {isRunning && (
+        <section
+          className="display-area"
+          ref={displayAreaRef}
+        >
           <div className="fullscreen-hint">【スペースキー】で一時停止・終了 / 文字をタップでジャンプ</div>
-        )}
-        <div className="text-container">
-          {words.map((char, i) => {
-            if (char === '\n') {
-              return <br key={i} />;
-            }
-            return (
-              <span
-                key={i}
-                ref={i === currentIndex ? activeWordRef : null}
-                className={`word ${i === currentIndex ? 'active' : ''} ${i < currentIndex ? 'past' : ''}`}
-                onClick={isRunning ? (e) => handleWordClick(e, i) : undefined}
-                style={isRunning ? { cursor: 'pointer' } : {}}
-              >
-                {char}
-              </span>
-            );
-          })}
-        </div>
-      </section>
+
+          <div className="text-container">
+            {words.map((char, i) => {
+              if (char === '\n') {
+                return <br key={i} />;
+              }
+              return (
+                <span
+                  key={i}
+                  ref={i === currentIndex ? activeWordRef : null}
+                  className={`word ${i === currentIndex ? 'active' : ''} ${i < currentIndex ? 'past' : ''}`}
+                  onClick={(e) => handleWordClick(e, i)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {char}
+                </span>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ヘルプモーダル */}
       {showHelp && (
