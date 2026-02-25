@@ -172,3 +172,35 @@ input[type="range"]::-webkit-slider-thumb {
   text-shadow: 0 0 8px #ffeb3b;
   font-weight: 700;
 }
+
+.word.past {
+  opacity: 0.15;
+}
+
+.display-area.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  max-width: none;
+  border-radius: 0;
+  margin: 0;
+  z-index: 1000;
+  padding: 5vh 5vw;
+  cursor: pointer;
+}
+
+.fullscreen-hint {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 16px;
+  border-radius: 8px;
+  z-index: 1001;
+  pointer-events: none;
+}
