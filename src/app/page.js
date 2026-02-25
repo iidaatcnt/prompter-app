@@ -155,6 +155,12 @@ export default function Home() {
     setIsRunning(false);
   };
 
+  const handleWordClick = (e, index) => {
+    e.stopPropagation(); // 画面全体のタップ（終了）イベントが発火するのを防ぐ
+    setCurrentIndex(index); // クリックした文字のインデックスに強制ジャンプ
+    lastProcessedTranscriptRef.current = ''; // 音声認識のバッファをクリアして再スタート
+  };
+
   return (
     <div className="app">
       {!isRunning && <h1 className="title">Reels Prompter 😎</h1>}
@@ -191,7 +197,7 @@ export default function Home() {
         onClick={isRunning ? handleStop : undefined}
       >
         {isRunning && (
-          <div className="fullscreen-hint">画面をタップして終了</div>
+          <div className="fullscreen-hint">文字をタップでジャンプ / 何もない所をタップで終了</div>
         )}
         <div className="text-container">
           {words.map((char, i) => {
@@ -203,6 +209,8 @@ export default function Home() {
                 key={i}
                 ref={i === currentIndex ? activeWordRef : null}
                 className={`word ${i === currentIndex ? 'active' : ''} ${i < currentIndex ? 'past' : ''}`}
+                onClick={isRunning ? (e) => handleWordClick(e, i) : undefined}
+                style={isRunning ? { cursor: 'pointer' } : {}}
               >
                 {char}
               </span>
