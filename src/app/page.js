@@ -190,6 +190,12 @@ export default function Home() {
 
       if (e.code === 'Space') {
         e.preventDefault(); // 画面がスクロールしてしまうのを防ぐ
+
+        if (showHelp) {
+          setShowHelp(false); // ヘルプが開いている場合は閉じる
+          return;
+        }
+
         if (isRunning) {
           handleStop();
         } else {
@@ -200,7 +206,7 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isRunning, currentIndex, words.length]);
+  }, [isRunning, currentIndex, words.length, showHelp]);
 
   return (
     <div className="app">
@@ -217,11 +223,8 @@ export default function Home() {
           ></textarea>
 
           <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-            <button className="btn btn-primary" onClick={handleStart} style={{ flex: 2, padding: '15px', fontSize: '1.2rem' }}>
+            <button className="btn btn-primary" onClick={handleStart} style={{ flex: 3, padding: '15px', fontSize: '1.2rem' }}>
               ▶ スタートする
-            </button>
-            <button className="btn btn-secondary" onClick={() => setCurrentIndex(0)} style={{ flex: 1 }} title="先頭から読み直したい時に使います">
-              リセット
             </button>
             <button className="btn btn-secondary" onClick={() => setShowHelp(true)} style={{ flex: 1 }}>
               ヘルプ
@@ -269,11 +272,11 @@ export default function Home() {
           <div className="help-content" onClick={(e) => e.stopPropagation()}>
             <h2>📖 使い方ヘルプ</h2>
             <ul>
-              <li><strong>【スペースキー】で開始・停止:</strong> <br />設定画面でスペースキーを押すと即座に開始します。実行中にもう一度押すと終了して元の画面に戻ります。</li>
+              <li><strong>【スペースキー】で開始・停止・閉じる:</strong> <br />設定画面やヘルプ画面でスペースキーを押すと即座に開始・終了（閉じる）ができます。</li>
               <li><strong> AI音声自動追従:</strong> <br />あなたが話すスピードをAIがリアルタイムに聞き取り、文字のハイライト（黄色）と自動スクロールを行います。</li>
-              <li><strong> 文字タップでジャンプ機能:</strong> <br />アドリブ等でAIが迷子になった時は、画面上の任意の文字をタップしてください。一瞬でその場所にジャンプしてAIが追従を復帰します。</li>
-              <li><strong> 演出メモの無視:</strong> <br />原稿内の「（笑顔で）」や「【ゆっくり】」などの括弧書きは、AIが賢く無視して次のセリフを待ち構えます。</li>
-              <li><strong> リセット機能:</strong> <br />「リセット」ボタンを押すと、一番最初の文字からやり直すことができます（テイク2の撮影時に便利です）。</li>
+              <li><strong> 文字タップでジャンプ機能:</strong> <br />アドリブ等でAIが迷子になった時は、画面上の任意の文字をタップしてください。一瞬でその場所にジャンプしてAIが追従を復帰します。最初からやり直したい時も、先頭の文字をタップすればOKです。</li>
+              <li><strong> 演出メモの記載テクニック:</strong> <br />原稿内の「（笑顔で）」や「【ゆっくり】」などの括弧書きは、AIが音声認識の対象外として賢く無視します。画面越しに見る自分への注釈・演技メモとして活用してください。</li>
+              <li><strong> 推奨される文字数:</strong> <br />Instagramリール（約1分間）の撮影の場合、大体<strong>300文字〜400文字程度</strong>を目安に原稿（テキスト）を入力するのが丁度よい分量でおすすめです。</li>
             </ul>
             <div style={{ textAlign: 'center' }}>
               <button className="btn btn-primary" onClick={() => setShowHelp(false)} style={{ padding: '10px 40px', fontSize: '1.2rem' }}>閉じる</button>
