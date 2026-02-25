@@ -161,6 +161,25 @@ export default function Home() {
     lastProcessedTranscriptRef.current = ''; // 音声認識のバッファをクリアして再スタート
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // テキストエリアに入力中はスペースキーを無視する
+      if (e.target.tagName.toLowerCase() === 'textarea') return;
+
+      if (e.code === 'Space') {
+        e.preventDefault(); // 画面がスクロールしてしまうのを防ぐ
+        if (isRunning) {
+          handleStop();
+        } else {
+          handleStart();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isRunning, currentIndex, words.length]);
+
   return (
     <div className="app">
       {!isRunning && <h1 className="title">Reels Prompter 😎</h1>}
@@ -177,15 +196,15 @@ export default function Home() {
 
           <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
             <button className="btn btn-primary" onClick={handleStart} style={{ flex: 2, padding: '15px', fontSize: '1.2rem' }}>
-              🎤 音声認識でスタートする
+              ▶ スタートする
             </button>
-            <button className="btn btn-secondary" onClick={() => setCurrentIndex(0)} style={{ flex: 1 }}>
+            <button className="btn btn-secondary" onClick={() => setCurrentIndex(0)} style={{ flex: 1 }} title="先頭から読み直したい時に使います">
               🔄 リセット
             </button>
           </div>
           <p style={{ fontSize: '0.85rem', color: '#ccc', marginTop: '15px', textAlign: 'center' }}>
             ※ Google Chrome または Safari でご利用ください。マイクへのアクセス許可が必要です。<br />
-            実行中は文字のエリアが全画面表示になります。
+            【スペースキー】で素早くスタート・終了ができます。
           </p>
         </section>
       )}
@@ -194,10 +213,10 @@ export default function Home() {
       <section
         className={`display-area ${isRunning ? 'fullscreen' : ''}`}
         ref={displayAreaRef}
-        onClick={isRunning ? handleStop : undefined}
+      /* 画面タップでの終了は廃止し、文字タップでのジャンプのみに特化 */
       >
         {isRunning && (
-          <div className="fullscreen-hint">文字をタップでジャンプ / 何もない所をタップで終了</div>
+          <div className="fullscreen-hint">【スペースキー】で一時停止・終了 / 文字をタップでジャンプ</div>
         )}
         <div className="text-container">
           {words.map((char, i) => {
