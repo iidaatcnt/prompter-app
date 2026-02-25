@@ -230,10 +230,13 @@ export default function Home() {
               ヘルプ
             </button>
           </div>
-          <p style={{ fontSize: '0.85rem', color: '#ccc', marginTop: '15px', textAlign: 'center' }}>
-            ※ Google Chrome または Safari でご利用ください。マイクへのアクセス許可が必要です。<br />
-            【スペースキー】で素早くスタート・終了ができます。
-          </p>
+          <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeeba', color: '#856404', textAlign: 'center' }}>
+            <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>🎙️ マイクへのアクセス許可が必要です</p>
+            <p style={{ fontSize: '0.9rem' }}>
+              ※ 初回開始時にブラウザ（Google Chrome または Safari）からマイクの許可を求められますので「許可」をお願いします。<br />
+              【スペースキー】で素早くスタート・終了ができます。
+            </p>
+          </div>
         </section>
       )}
 
