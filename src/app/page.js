@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
-  const [scriptText, setScriptText] = useState('皆様こんにちは！\n今日はお知らせがありまして、動画を回しています。\n実は、私がずっと開発を続けてきた新しいアプリが、ついに完成しました。\nこのアプリを使えば、毎日の面倒な作業が、驚くほど簡単になります。\n詳しくはキャプションに書いているので、ぜひチェックしてみてくださいね。\n画面のダブルタップもよろしくお願いします。');
+  const [scriptText, setScriptText] = useState('皆様こんにちは！\n今日はお知らせがありまして、動画を回しています。\n実は、私がずっと開発を続けてきた新しいアプリが、ついに完成しました。\nこのアプリを使えば、毎日の面倒な作業が、驚くほど簡単になります。\n詳しくはキャプションに書いているので、ぜひチェックしてみてくださいね。\n最後はスペースキーを押して終了してください。');
   const [isRunning, setIsRunning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
@@ -221,10 +221,10 @@ export default function Home() {
               ▶ スタートする
             </button>
             <button className="btn btn-secondary" onClick={() => setCurrentIndex(0)} style={{ flex: 1 }} title="先頭から読み直したい時に使います">
-              🔄 リセット
+              リセット
             </button>
             <button className="btn btn-secondary" onClick={() => setShowHelp(true)} style={{ flex: 1 }}>
-              ❓ ヘルプ
+              ヘルプ
             </button>
           </div>
           <p style={{ fontSize: '0.85rem', color: '#ccc', marginTop: '15px', textAlign: 'center' }}>
