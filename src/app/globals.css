@@ -19,7 +19,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  height: 100%;
+  height: 100vh;
   padding: 2rem;
 }
 
@@ -33,8 +33,9 @@ html, body {
 .control-panel {
   width: 100%;
   max-width: 800px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.08); /* fallback */
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
@@ -43,7 +44,7 @@ html, body {
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
 }
 
-textarea#scriptInput {
+textarea.scriptInput {
   width: 100%;
   min-height: 80px;
   resize: vertical;
@@ -53,11 +54,14 @@ textarea#scriptInput {
   font-size: 1rem;
   background: rgba(255,255,255,0.12);
   color: #fff;
-  backdrop-filter: blur(8px);
 }
 
-textarea#scriptInput::placeholder {
+textarea.scriptInput::placeholder {
   color: #ccc;
+}
+
+textarea.scriptInput:focus {
+    outline: 2px solid #4e54c8;
 }
 
 .settings {
@@ -90,18 +94,25 @@ input[type="range"]::-webkit-slider-thumb {
   border: none;
   border-radius: 6px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: transform 0.1s ease, background 0.2s ease;
 }
 
-.btn.primary {
+.btn-primary {
   background: #4e54c8;
   color: #fff;
 }
+.btn-primary:hover {
+  background: #6268d6;
+}
 
-.btn.secondary {
+.btn-secondary {
   background: #555;
   color: #ddd;
+}
+.btn-secondary:hover {
+  background: #666;
 }
 
 .btn:active {
@@ -117,19 +128,35 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: 1.5rem;
   width: 100%;
   max-width: 800px;
-  min-height: 200px;
+  height: 350px; /* 固定の高さ */
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 1rem;
-  font-size: 1.4rem;
+  font-size: 2.5rem;
   line-height: 1.6;
   color: #fff;
-  overflow-y: auto;
+  overflow-y: hidden; /* スクロールバーを見えなくする */
   box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+  position: relative;
 }
 
-.highlight {
+.text-container {
+  padding-top: 150px; /* 最初の中央合わせのための余白 */
+  padding-bottom: 200px; 
+}
+
+.word {
+  display: inline-block;
+  margin-right: 2px;
+  opacity: 0.4;
+  transition: opacity 0.2s, color 0.2s;
+  white-space: pre-wrap; /* 改行やスペースを維持 */
+}
+
+.word.active {
+  opacity: 1;
   color: #ffeb3b;
   text-shadow: 0 0 8px #ffeb3b;
+  font-weight: 700;
 }
