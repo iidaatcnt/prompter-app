@@ -6,6 +6,7 @@ export default function Home() {
   const [scriptText, setScriptText] = useState('こんにちは。\n今日はInstagramのリール撮影で使える、\n新しいプロンプターアプリのテストを行っています。\n\n音声認識モードを搭載し、話すスピードに合わせて\nアプリが自動的に読む場所を追いかけてくれます。\n\n（ここでアドリブで笑顔）\n実行中はフルスクリーンになり、目線を上げたままで自然に話せます。\n【スペースキー】を押すと一時停止・終了します。');
   const [isRunning, setIsRunning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showHelp, setShowHelp] = useState(false);
 
   const displayAreaRef = useRef(null);
   const activeWordRef = useRef(null);
@@ -203,7 +204,7 @@ export default function Home() {
 
   return (
     <div className="app">
-      {!isRunning && <h1 className="title">Reels Prompter 😎</h1>}
+      {!isRunning && <h1 className="title">Reels Prompter</h1>}
 
       {!isRunning && (
         <section className="control-panel">
@@ -221,6 +222,9 @@ export default function Home() {
             </button>
             <button className="btn btn-secondary" onClick={() => setCurrentIndex(0)} style={{ flex: 1 }} title="先頭から読み直したい時に使います">
               🔄 リセット
+            </button>
+            <button className="btn btn-secondary" onClick={() => setShowHelp(true)} style={{ flex: 1 }}>
+              ❓ ヘルプ
             </button>
           </div>
           <p style={{ fontSize: '0.85rem', color: '#ccc', marginTop: '15px', textAlign: 'center' }}>
@@ -258,6 +262,25 @@ export default function Home() {
           })}
         </div>
       </section>
+
+      {/* ヘルプモーダル */}
+      {showHelp && (
+        <div className="help-modal" onClick={() => setShowHelp(false)}>
+          <div className="help-content" onClick={(e) => e.stopPropagation()}>
+            <h2>📖 使い方ヘルプ</h2>
+            <ul>
+              <li><strong>【スペースキー】で開始・停止:</strong> <br />設定画面でスペースキーを押すと即座に開始します。実行中にもう一度押すと終了して元の画面に戻ります。</li>
+              <li><strong> AI音声自動追従:</strong> <br />あなたが話すスピードをAIがリアルタイムに聞き取り、文字のハイライト（黄色）と自動スクロールを行います。</li>
+              <li><strong> 文字タップでジャンプ機能:</strong> <br />アドリブ等でAIが迷子になった時は、画面上の任意の文字をタップしてください。一瞬でその場所にジャンプしてAIが追従を復帰します。</li>
+              <li><strong> 演出メモの無視:</strong> <br />原稿内の「（笑顔で）」や「【ゆっくり】」などの括弧書きは、AIが賢く無視して次のセリフを待ち構えます。</li>
+              <li><strong> リセット機能:</strong> <br />「リセット」ボタンを押すと、一番最初の文字からやり直すことができます（テイク2の撮影時に便利です）。</li>
+            </ul>
+            <div style={{ textAlign: 'center' }}>
+              <button className="btn btn-primary" onClick={() => setShowHelp(false)} style={{ padding: '10px 40px', fontSize: '1.2rem' }}>閉じる</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -204,3 +204,53 @@ input[type="range"]::-webkit-slider-thumb {
   z-index: 1001;
   pointer-events: none;
 }
+
+/* ヘルプモーダル */
+.help-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.help-content {
+  background: #1a1a2e;
+  padding: 2.5rem;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  line-height: 1.8;
+  color: #fff;
+}
+
+.help-content h2 {
+  margin-bottom: 1.5rem;
+  color: #ffeb3b;
+  text-align: center;
+}
+
+.help-content ul {
+  margin-left: 0;
+  margin-bottom: 2rem;
+  list-style: none;
+}
+
+.help-content li {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.help-content strong {
+  color: #ff914d;
+}
