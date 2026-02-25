@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
-  const [scriptText, setScriptText] = useState('こんにちは。\n今日はInstagramのリール撮影で使える、\n新しいプロンプターアプリのテストを行っています。\n\n音声認識モードを搭載し、話すスピードに合わせて\nアプリが自動的に読む場所を追いかけてくれます。\n\n実行中はフルスクリーンになり、\n目線を上げたままで自然に話せます。\n画面をタップ（またはクリック）すると終了します。');
+  const [scriptText, setScriptText] = useState('こんにちは。\n今日はInstagramのリール撮影で使える、\n新しいプロンプターアプリのテストを行っています。\n\n音声認識モードを搭載し、話すスピードに合わせて\nアプリが自動的に読む場所を追いかけてくれます。\n\n（ここでアドリブで笑顔）\n実行中はフルスクリーンになり、目線を上げたままで自然に話せます。\n【スペースキー】を押すと一時停止・終了します。');
   const [isRunning, setIsRunning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -40,15 +40,36 @@ export default function Home() {
               // 簡易的なトラッキング：
               // 直近で認識した最後の2文字を取得し、現在地から先にあるか探す
               const searchStr = cleanTranscript.length >= 2 ? cleanTranscript.slice(-2) : cleanTranscript;
-              const lookAhead = Math.min(prev + 40, words.length); // 40文字先まで探す
+              const lookAhead = Math.min(prev + 50, words.length); // 50文字先まで探す
 
               let foundIdx = -1;
               for (let i = prev; i < lookAhead; i++) {
-                // スクリプトから空白・改行を除外した文字列のかたまりを作る
-                const sliceFromWords = words.slice(i, i + searchStr.length).join('').replace(/[\s、。！？\n]/g, "");
-                // そのかたまりと認識した2文字を雑に突き合わせる
-                if (sliceFromWords === searchStr && searchStr.length > 0) {
-                  foundIdx = i + searchStr.length - 1;
+                let tempStr = "";
+                let parenDepth = 0;
+                let j = i;
+
+                // searchStrの長さ分だけ、意味のある文字（括弧外）を取得する
+                while (j < words.length && tempStr.length < searchStr.length) {
+                  const char = words[j];
+                  // 括弧の開始判定
+                  if (char === '(' || char === '（' || char === '【' || char === '［' || char === '[') {
+                    parenDepth++;
+                  }
+
+                  // 括弧の外で、かつ無視する記号でなければ追加
+                  if (parenDepth === 0 && !/[\s、。！？\n]/.test(char)) {
+                    tempStr += char;
+                  }
+
+                  // 括弧の終了判定 (追加処理の後に判定することで、閉じ括弧自体も追加されないようにする)
+                  if (char === ')' || char === '）' || char === '】' || char === '］' || char === ']') {
+                    if (parenDepth > 0) parenDepth--;
+                  }
+                  j++;
+                }
+
+                if (tempStr === searchStr && searchStr.length > 0) {
+                  foundIdx = j - 1;
                   break;
                 }
               }
