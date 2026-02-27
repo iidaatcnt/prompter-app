@@ -50,15 +50,15 @@ export default function Home() {
           if (cleanTranscript.length > 0) {
             setCurrentIndex((prev) => {
               // 少し長めのフレーズ（直近の3〜4文字以上）で検索し、「してください」などでの飛びすぎを防ぐ
-              const searchStr = cleanTranscript.length >= 4 
-                  ? cleanTranscript.slice(-4) 
-                  : cleanTranscript.length >= 3 
-                      ? cleanTranscript.slice(-3) 
-                      : cleanTranscript.slice(-2);
-              
+              const searchStr = cleanTranscript.length >= 4
+                ? cleanTranscript.slice(-4)
+                : cleanTranscript.length >= 3
+                  ? cleanTranscript.slice(-3)
+                  : cleanTranscript.slice(-2);
+
               // 検索する範囲を現在地から「30文字先まで」に限定することで、
               // 文章のずっと後ろにある同じ言葉（してください 等）に突然ジャンプするのを防ぎます
-              const lookAheadChars = 30; 
+              const lookAheadChars = 30;
 
               let foundIdx = -1;
               let tempStr = "";
@@ -147,7 +147,7 @@ export default function Home() {
 
     const currentWord = words[currentIndex];
     const charCount = currentWord.trim().length === 0 ? 1 : currentWord.length;
-    
+
     // 単語の文字数 × 1文字の待機時間 の分だけ停止してから次の単語へ
     const delay = Math.max(msPerChar * charCount, 50);
 
@@ -209,7 +209,7 @@ export default function Home() {
   const handleWordClick = (e, index) => {
     e.stopPropagation();
     setCurrentIndex(index);
-    lastProcessedTranscriptRef.current = ''; 
+    lastProcessedTranscriptRef.current = '';
   };
 
   useEffect(() => {
@@ -251,41 +251,6 @@ export default function Home() {
           ></textarea>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', backgroundColor: '#2a2a2a', padding: '15px', borderRadius: '8px', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1, minWidth: '250px' }}>
-                <label style={{ fontWeight: 'bold', fontSize: '1.05rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                  <input
-                    type="radio"
-                    name="mode"
-                    value="voice"
-                    checked={mode === 'voice'}
-                    onChange={() => setMode('voice')}
-                    style={{ marginRight: '10px', width: '20px', height: '20px' }}
-                  />
-                  🎤 声で進める（AI自動追従）
-                </label>
-                <label style={{ fontWeight: 'bold', fontSize: '1.05rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                  <input
-                    type="radio"
-                    name="mode"
-                    value="auto"
-                    checked={mode === 'auto'}
-                    onChange={() => setMode('auto')}
-                    style={{ marginRight: '10px', width: '20px', height: '20px' }}
-                  />
-                  ⏱️ 自動一定スクロール（声に依存しない）
-                </label>
-              </div>
-
-              {mode === 'auto' && (
-                <div style={{ display: 'flex', gap: '15px', flex: 1, backgroundColor: '#1a1a1a', padding: '15px', borderRadius: '6px', minWidth: '250px', justifyContent: 'center' }}>
-                  <label style={{ cursor: 'pointer' }}><input type="radio" name="speed" value="slow" checked={autoSpeed === 'slow'} onChange={() => setAutoSpeed('slow')} /> ゆっくり</label>
-                  <label style={{ cursor: 'pointer' }}><input type="radio" name="speed" value="normal" checked={autoSpeed === 'normal'} onChange={() => setAutoSpeed('normal')} /> 普通</label>
-                  <label style={{ cursor: 'pointer' }}><input type="radio" name="speed" value="fast" checked={autoSpeed === 'fast'} onChange={() => setAutoSpeed('fast')} /> 早め</label>
-                </div>
-              )}
-            </div>
-
             <div style={{ display: 'flex', gap: '15px' }}>
               <button className="btn btn-primary" onClick={handleStart} style={{ flex: 3, padding: '15px', fontSize: '1.2rem' }}>
                 ▶ スタートする
@@ -294,8 +259,54 @@ export default function Home() {
                 ヘルプ
               </button>
             </div>
+
+            <div style={{ padding: '10px 15px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.9rem', color: '#333' }}>
+              <div style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '0.85rem', color: '#666' }}>スクロール設定</div>
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    name="scrollSetting"
+                    checked={mode === 'voice'}
+                    onChange={() => setMode('voice')}
+                    style={{ marginRight: '5px' }}
+                  />
+                  🎤 自動(AI音声追従)
+                </label>
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    name="scrollSetting"
+                    checked={mode === 'auto' && autoSpeed === 'fast'}
+                    onChange={() => { setMode('auto'); setAutoSpeed('fast'); }}
+                    style={{ marginRight: '5px' }}
+                  />
+                  ⏱️ 早口
+                </label>
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    name="scrollSetting"
+                    checked={mode === 'auto' && autoSpeed === 'normal'}
+                    onChange={() => { setMode('auto'); setAutoSpeed('normal'); }}
+                    style={{ marginRight: '5px' }}
+                  />
+                  ⏱️ 普通
+                </label>
+                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    name="scrollSetting"
+                    checked={mode === 'auto' && autoSpeed === 'slow'}
+                    onChange={() => { setMode('auto'); setAutoSpeed('slow'); }}
+                    style={{ marginRight: '5px' }}
+                  />
+                  ⏱️ ゆっくり
+                </label>
+              </div>
+            </div>
           </div>
-          
+
           {mode === 'voice' && (
             <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeeba', color: '#856404', textAlign: 'center' }}>
               <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>🎙️ マイクへのアクセス許可が必要です</p>
