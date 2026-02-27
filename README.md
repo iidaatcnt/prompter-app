@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# べしゃりのカンペ君
 
-## Getting Started
+**AI追従＆自動スクロール対応のブラウザ型プロンプターアプリ**
 
-First, run the development server:
+「べしゃりのカンペ君」は、動画撮影やプレゼンテーションの際に文字をスムーズに読むためのプロンプター（カンペ）アプリです。あなたの話す声に合わせて自動でスクロールするモードや、一定速度で綺麗に流れる自動スクロールモードを完備しています。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎯 主な機能
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. **🎤 自動（AI音声追従）モード**
+   - パソコンやスマートフォンのマイクを使用し、あなたの話す声（音声認識）に合わせて原稿のハイライト位置が自動で追従します。
+   - 話すペースが一定でなくても、AIが話した言葉を認識してテキストをスクロールさせます。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **⏱️ 自動一定スクロールモード**
+   - 話すスピードとは無関係に、設定した速度で一定にテキストが流れます。
+   - 速度の目安:
+     - **[ゆっくり]**: 約200文字／分（じっくり語りかける動画向け）
+     - **[普通]**: 約300文字／分（アナウンサーがニュースを読む標準スピード）
+     - **[早め]**: 約450文字／分（テンポの速いショート動画向け）
 
-## Learn More
+3. **📌 ピン留め（一時停止）機能**
+   - 自動スクロール実行中、プロンプターの**画面の余白を長押し（マウスでクリックし続ける）**している間はスクロールが停止します。指を離すと再度スクロールが始まります。
 
-To learn more about Next.js, take a look at the following resources:
+4. **⚡ 即時ジャンプ機能**
+   - 音声追従モード中など、読み間違えて最初から読み直したい場合、画面上の**任意の文字をタップ（クリック）**するだけで、一瞬で現在地をその場所に移動できます。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. **✨ 演出メモの自動スキップ**
+   - 原稿内に書かれたカッコ書き（例：`（笑顔で）` や `【一呼吸置く】`）は、AIが音声認識の対象外として賢く無視します。自分のための演出メモを気兼ねなく書き込めます。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🚀 使い方
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. アプリを開き、メイン画面のテキストボックスに読みたい原稿を入力（または貼り付け）します。
+2. その下にある「スクロール設定」から、お好みのモード（自動音声追従 または スピード）を選びます。
+3. **「▶ スタートする」**ボタンを押すか、キーボードの**【スペースキー】**を押すと、全画面でプロンプターが開始されます。
+   - ※ マイクを使用するモードを初めて選んだ際は、ブラウザからマイクの許可を求められますので「許可」してください。
+4. 終了したい場合や、途中で止めて設定画面に戻りたい場合は、画面内で再度**【スペースキー】**を押すだけで即座に終了します。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+### 推奨環境
+- 最新の Google Chrome（音声追従モードを利用する場合は、Web Speech APIに対応したChrome等のブラウザが必須です）
+- インターネット接続環境（音声認識処理に必要です）
