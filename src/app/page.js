@@ -238,7 +238,7 @@ export default function Home() {
 
   return (
     <div className="app">
-      {!isRunning && <h1 className="title">Reels Prompter</h1>}
+      {!isRunning && <h1 className="title">べしゃりのカンペ君</h1>}
 
       {!isRunning && (
         <section className="control-panel">
