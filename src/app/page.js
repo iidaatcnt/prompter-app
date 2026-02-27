@@ -1,21 +1,32 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 export default function Home() {
   const [scriptText, setScriptText] = useState('皆様こんにちは！\n今日はお知らせがありまして、動画を回しています。\n実は、私がずっと開発を続けてきた新しいアプリが、ついに完成しました。\nこのアプリを使えば、毎日の面倒な作業が、驚くほど簡単になります。\n詳しくはキャプションに書いているので、ぜひチェックしてみてくださいね。\n最後はスペースキーを押して終了してください。');
   const [isRunning, setIsRunning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
+  const [mode, setMode] = useState('voice'); // 'voice' or 'auto'
+  const [autoSpeed, setAutoSpeed] = useState('normal'); // 'slow', 'normal', 'fast'
+  const [isPausedByMouse, setIsPausedByMouse] = useState(false);
 
   const displayAreaRef = useRef(null);
   const activeWordRef = useRef(null);
   const recognitionRef = useRef(null);
   const lastProcessedTranscriptRef = useRef('');
 
-  // 文字列を1文字ずつ分割。改行やスペースも要素として含む
-  const words = scriptText.split('');
+  // Intl.Segmenter を使って文を単語レベルで分割（対応していないブラウザは1文字ずつ）
+  // これにより「文字単位のハイライト」から「単語・フレーズ単位のハイライト」になります
+  const words = useMemo(() => {
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
+      return Array.from(segmenter.segment(scriptText)).map(s => s.segment);
+    }
+    return scriptText.split('');
+  }, [scriptText]);
 
+  // 音声認識のセットアップ
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -26,7 +37,7 @@ export default function Home() {
         recognition.lang = 'ja-JP';
 
         recognition.onresult = (event) => {
-          if (!isRunning) return;
+          if (!isRunning || mode !== 'voice') return;
 
           let transcript = "";
           for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -38,39 +49,37 @@ export default function Home() {
 
           if (cleanTranscript.length > 0) {
             setCurrentIndex((prev) => {
-              // 簡易的なトラッキング：
-              // 直近で認識した最後の2文字を取得し、現在地から先にあるか探す
-              const searchStr = cleanTranscript.length >= 2 ? cleanTranscript.slice(-2) : cleanTranscript;
-              const lookAhead = Math.min(prev + 50, words.length); // 50文字先まで探す
+              // 少し長めのフレーズ（直近の3〜4文字以上）で検索し、「してください」などでの飛びすぎを防ぐ
+              const searchStr = cleanTranscript.length >= 4 
+                  ? cleanTranscript.slice(-4) 
+                  : cleanTranscript.length >= 3 
+                      ? cleanTranscript.slice(-3) 
+                      : cleanTranscript.slice(-2);
+              
+              // 検索する範囲を現在地から「30文字先まで」に限定することで、
+              // 文章のずっと後ろにある同じ言葉（してください 等）に突然ジャンプするのを防ぎます
+              const lookAheadChars = 30; 
 
               let foundIdx = -1;
-              for (let i = prev; i < lookAhead; i++) {
-                let tempStr = "";
-                let parenDepth = 0;
-                let j = i;
+              let tempStr = "";
+              let charCount = 0;
+              let parenDepth = 0;
 
-                // searchStrの長さ分だけ、意味のある文字（括弧外）を取得する
-                while (j < words.length && tempStr.length < searchStr.length) {
-                  const char = words[j];
-                  // 括弧の開始判定
-                  if (char === '(' || char === '（' || char === '【' || char === '［' || char === '[') {
-                    parenDepth++;
-                  }
+              for (let i = prev; i < words.length; i++) {
+                const word = words[i];
+                charCount += word.length;
+                if (charCount > lookAheadChars) break; // 遠すぎる場合は検索を打ち切る
 
-                  // 括弧の外で、かつ無視する記号でなければ追加
-                  if (parenDepth === 0 && !/[\s、。！？\n]/.test(char)) {
-                    tempStr += char;
-                  }
-
-                  // 括弧の終了判定 (追加処理の後に判定することで、閉じ括弧自体も追加されないようにする)
+                for (let char of word) {
+                  if (char === '(' || char === '（' || char === '【' || char === '［' || char === '[') parenDepth++;
+                  if (parenDepth === 0 && !/[\s、。！？\n]/.test(char)) tempStr += char;
                   if (char === ')' || char === '）' || char === '】' || char === '］' || char === ']') {
                     if (parenDepth > 0) parenDepth--;
                   }
-                  j++;
                 }
 
-                if (tempStr === searchStr && searchStr.length > 0) {
-                  foundIdx = j - 1;
+                if (tempStr.includes(searchStr) && searchStr.length > 0) {
+                  foundIdx = i;
                   break;
                 }
               }
@@ -80,22 +89,14 @@ export default function Home() {
                 return foundIdx;
               }
 
-              // 見つからなかったら、シンプルに認識された文字数分だけ進める
-              const newlyRecognizedCount = Math.max(0, cleanTranscript.length - lastProcessedTranscriptRef.current.length);
-              lastProcessedTranscriptRef.current = cleanTranscript;
-
-              // 誤認識で一気に飛びすぎないように、1回のジャンプを制限
-              if (newlyRecognizedCount > 0 && newlyRecognizedCount <= 12) {
-                return Math.min(prev + newlyRecognizedCount, words.length - 1);
-              }
               return prev;
             });
           }
         };
 
         recognition.onend = () => {
-          // 音声認識が勝手に途切れた場合は再開する（実行中の場合）
-          if (isRunning) {
+          // 音声認識が勝手に途切れた場合は再開する（実行中かつ音声モードの場合）
+          if (isRunning && mode === 'voice') {
             setTimeout(() => {
               try {
                 if (recognitionRef.current) recognitionRef.current.start();
@@ -109,15 +110,18 @@ export default function Home() {
         console.error("このブラウザは音声認識APIに対応していません");
       }
     }
-  }, [isRunning, words]);
+  }, [isRunning, mode, words]);
 
+  // モードごとの実行管理（マイクの起動/停止など）
   useEffect(() => {
     if (isRunning) {
-      lastProcessedTranscriptRef.current = '';
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.start();
-        } catch (e) { console.log(e); }
+      if (mode === 'voice') {
+        lastProcessedTranscriptRef.current = '';
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.start();
+          } catch (e) { console.log(e); }
+        }
       }
     } else {
       if (recognitionRef.current) {
@@ -126,9 +130,36 @@ export default function Home() {
         } catch (e) { console.log(e); }
       }
     }
-  }, [isRunning]);
+  }, [isRunning, mode]);
 
-  // 今読んでいる文字（currentIndex）が変わるたびにスクロールを調整する
+  // 自動スクロールモードのタイマー処理
+  useEffect(() => {
+    if (!isRunning || mode !== 'auto' || isPausedByMouse) return;
+
+    // スピードに応じた1分あたりの読字数（CPM）
+    const cpm = autoSpeed === 'slow' ? 200 : autoSpeed === 'fast' ? 450 : 300;
+    const msPerChar = 60000 / cpm; // 1文字あたりの待機ミリ秒
+
+    if (currentIndex >= words.length) {
+      handleStop();
+      return;
+    }
+
+    const currentWord = words[currentIndex];
+    const charCount = currentWord.trim().length === 0 ? 1 : currentWord.length;
+    
+    // 単語の文字数 × 1文字の待機時間 の分だけ停止してから次の単語へ
+    const delay = Math.max(msPerChar * charCount, 50);
+
+    const timer = setTimeout(() => {
+      setCurrentIndex(prev => Math.min(prev + 1, words.length));
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [isRunning, mode, autoSpeed, currentIndex, words, isPausedByMouse]);
+
+
+  // 今読んでいる単語（currentIndex）が変わるたびにスクロールを調整する
   useEffect(() => {
     if (activeWordRef.current && displayAreaRef.current) {
       const container = displayAreaRef.current;
@@ -147,13 +178,11 @@ export default function Home() {
 
   const handleStart = () => {
     if (words.length > 0) {
-      // 読み終わっていたら最初から
       if (currentIndex >= words.length - 1) {
         setCurrentIndex(0);
       }
       setIsRunning(true);
 
-      // おまけ：ブラウザのフルスクリーン機能を呼び出す（対応している場合）
       try {
         if (displayAreaRef.current?.requestFullscreen && !document.fullscreenElement) {
           displayAreaRef.current.requestFullscreen().catch(err => console.log(err));
@@ -178,21 +207,20 @@ export default function Home() {
   };
 
   const handleWordClick = (e, index) => {
-    e.stopPropagation(); // 画面全体のタップ（終了）イベントが発火するのを防ぐ
-    setCurrentIndex(index); // クリックした文字のインデックスに強制ジャンプ
-    lastProcessedTranscriptRef.current = ''; // 音声認識のバッファをクリアして再スタート
+    e.stopPropagation();
+    setCurrentIndex(index);
+    lastProcessedTranscriptRef.current = ''; 
   };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // テキストエリアに入力中はスペースキーを無視する
       if (e.target.tagName.toLowerCase() === 'textarea') return;
 
       if (e.code === 'Space') {
-        e.preventDefault(); // 画面がスクロールしてしまうのを防ぐ
+        e.preventDefault();
 
         if (showHelp) {
-          setShowHelp(false); // ヘルプが開いている場合は閉じる
+          setShowHelp(false);
           return;
         }
 
@@ -222,35 +250,82 @@ export default function Home() {
             onChange={handleTextChange}
           ></textarea>
 
-          <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-            <button className="btn btn-primary" onClick={handleStart} style={{ flex: 3, padding: '15px', fontSize: '1.2rem' }}>
-              ▶ スタートする
-            </button>
-            <button className="btn btn-secondary" onClick={() => setShowHelp(true)} style={{ flex: 1 }}>
-              ヘルプ
-            </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', backgroundColor: '#2a2a2a', padding: '15px', borderRadius: '8px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1, minWidth: '250px' }}>
+                <label style={{ fontWeight: 'bold', fontSize: '1.05rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    name="mode"
+                    value="voice"
+                    checked={mode === 'voice'}
+                    onChange={() => setMode('voice')}
+                    style={{ marginRight: '10px', width: '20px', height: '20px' }}
+                  />
+                  🎤 声で進める（AI自動追従）
+                </label>
+                <label style={{ fontWeight: 'bold', fontSize: '1.05rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    name="mode"
+                    value="auto"
+                    checked={mode === 'auto'}
+                    onChange={() => setMode('auto')}
+                    style={{ marginRight: '10px', width: '20px', height: '20px' }}
+                  />
+                  ⏱️ 自動一定スクロール（声に依存しない）
+                </label>
+              </div>
+
+              {mode === 'auto' && (
+                <div style={{ display: 'flex', gap: '15px', flex: 1, backgroundColor: '#1a1a1a', padding: '15px', borderRadius: '6px', minWidth: '250px', justifyContent: 'center' }}>
+                  <label style={{ cursor: 'pointer' }}><input type="radio" name="speed" value="slow" checked={autoSpeed === 'slow'} onChange={() => setAutoSpeed('slow')} /> ゆっくり</label>
+                  <label style={{ cursor: 'pointer' }}><input type="radio" name="speed" value="normal" checked={autoSpeed === 'normal'} onChange={() => setAutoSpeed('normal')} /> 普通</label>
+                  <label style={{ cursor: 'pointer' }}><input type="radio" name="speed" value="fast" checked={autoSpeed === 'fast'} onChange={() => setAutoSpeed('fast')} /> 早め</label>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '15px' }}>
+              <button className="btn btn-primary" onClick={handleStart} style={{ flex: 3, padding: '15px', fontSize: '1.2rem' }}>
+                ▶ スタートする
+              </button>
+              <button className="btn btn-secondary" onClick={() => setShowHelp(true)} style={{ flex: 1 }}>
+                ヘルプ
+              </button>
+            </div>
           </div>
-          <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeeba', color: '#856404', textAlign: 'center' }}>
-            <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>🎙️ マイクへのアクセス許可が必要です</p>
-            <p style={{ fontSize: '0.9rem' }}>
-              ※ 初回開始時にブラウザ（Google Chrome または Safari）からマイクの許可を求められますので「許可」をお願いします。<br />
-              【スペースキー】で素早くスタート・終了ができます。
-            </p>
-          </div>
+          
+          {mode === 'voice' && (
+            <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeeba', color: '#856404', textAlign: 'center' }}>
+              <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>🎙️ マイクへのアクセス許可が必要です</p>
+              <p style={{ fontSize: '0.9rem' }}>
+                ※ 初回開始時にブラウザからマイクの許可を求められますので「許可」をお願いします。<br />
+                【スペースキー】で素早くスタート・終了ができます。
+              </p>
+            </div>
+          )}
         </section>
       )}
 
       {/* 実行中のみプロンプター画面を表示 */}
       {isRunning && (
         <section
-          className="display-area"
+          className={`display-area ${isPausedByMouse ? 'paused' : ''}`}
           ref={displayAreaRef}
+          onMouseDown={() => setIsPausedByMouse(true)}
+          onMouseUp={() => setIsPausedByMouse(false)}
+          onMouseLeave={() => setIsPausedByMouse(false)}
+          onTouchStart={() => setIsPausedByMouse(true)}
+          onTouchEnd={() => setIsPausedByMouse(false)}
         >
-          <div className="fullscreen-hint">【スペースキー】で一時停止・終了 / 文字をタップでジャンプ</div>
+          <div className="fullscreen-hint">
+            【スペースキー: 終了】 / 【テキスト外を長押し: 一時停止】 / 【文字をタップ: ジャンプ】
+          </div>
 
           <div className="text-container">
-            {words.map((char, i) => {
-              if (char === '\n') {
+            {words.map((chunk, i) => {
+              if (chunk === '\n') {
                 return <br key={i} />;
               }
               return (
@@ -259,9 +334,9 @@ export default function Home() {
                   ref={i === currentIndex ? activeWordRef : null}
                   className={`word ${i === currentIndex ? 'active' : ''} ${i < currentIndex ? 'past' : ''}`}
                   onClick={(e) => handleWordClick(e, i)}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', display: 'inline-block' }}
                 >
-                  {char}
+                  {chunk.replace(/ /g, '\u00A0')}
                 </span>
               );
             })}
@@ -276,10 +351,9 @@ export default function Home() {
             <h2>📖 使い方ヘルプ</h2>
             <ul>
               <li><strong>【スペースキー】で開始・停止・閉じる:</strong> <br />設定画面やヘルプ画面でスペースキーを押すと即座に開始・終了（閉じる）ができます。</li>
-              <li><strong> AI音声自動追従:</strong> <br />あなたが話すスピードをAIがリアルタイムに聞き取り、文字のハイライト（黄色）と自動スクロールを行います。</li>
-              <li><strong> 実行中のクリック・タップ機能:</strong> <br />プロンプター実行中に、画面上の任意の文字をマウスでクリック（またはタップ）すると、現在地（ポインター）が一瞬でその場所にジャンプしてAIが追従を復帰します。アドリブ後や、最初からやり直したい時に便利です。</li>
-              <li><strong> 演出メモの記載テクニック:</strong> <br />原稿内の「（笑顔で）」や「【ゆっくり】」などの括弧書きは、AIが音声認識の対象外として賢く無視します。画面越しに見る自分への注釈・演技メモとして活用してください。</li>
-              <li><strong> 推奨される文字数:</strong> <br />Instagramリール（約1分間）の撮影の場合、大体<strong>300文字〜400文字程度</strong>を目安に原稿（テキスト）を入力するのが丁度よい分量でおすすめです。</li>
+              <li><strong> モード選択について:</strong> <br />【声で進める】はマイクを利用してあなたの速度に合わせます。【自動一定スクロール】は話すスピードとは無関係に、「ゆっくり・普通・早め」の一定速度で流れます（話すのが苦手な方におすすめです）。</li>
+              <li><strong> 実行中のクリック・タップ機能:</strong> <br />プロンプター実行中に、画面上の任意の単語をマウスでクリックまたはタップすると、現在地が一瞬でジャンプします（言い直す時などに便利です）。</li>
+              <li><strong> 演出メモの記載テクニック:</strong> <br />原稿内の「（笑顔で）」や「【ゆっくり】」などの括弧書きは、AIが音声認識の対象外として賢く無視します。</li>
             </ul>
             <div style={{ textAlign: 'center' }}>
               <button className="btn btn-primary" onClick={() => setShowHelp(false)} style={{ padding: '10px 40px', fontSize: '1.2rem' }}>閉じる</button>
